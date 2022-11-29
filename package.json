@@ -1,14 +1,15 @@
 {
-  "name": "simple-cron",
-  "version": "1.0.0",
-  "description": "",
+  "name": "simple-cron-generator",
+  "version": "1.0.1",
+  "description": "简单定时任务语句生成和解析",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
-  "author": "",
+  "author": "Li ZongYing",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "cron-parser": "^4.7.0"
   }
 }

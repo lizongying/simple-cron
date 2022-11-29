@@ -4,7 +4,7 @@
 // m 每多少月
 // w 周几 1 星期日
 // r 是否随机 true 随机
-const simpleCron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
+const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
     if (i < 0 || i > 60) {
         return false;
     }
@@ -20,20 +20,22 @@ const simpleCron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
     if (w < 0 || w > 7) {
         return false;
     }
+
     let li = [];
-    if (i === 0 && r && (h > 0 || d > 0 || m > 0 || w > 0)) {
-        li.push(Math.floor(Math.random() * 60).toString());
-    } else if (i === 0) {
+
+    if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0) && r) {
+        li.push(Math.floor(Math.random() * 59 + 1).toString());
+    } else if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0)) {
         li.push('0');
-    } else if (i === 1) {
+    } else if (i === 0 || i === 1) {
         li.push('*');
     } else {
         li.push('*/' + i.toString());
     }
 
-    if (i === 0 && h === 0 && r && (d > 0 || m > 0 || w > 0)) {
-        li.push(Math.floor(Math.random() * 24).toString());
-    } else if (i === 0 && h === 0) {
+    if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0) && r) {
+        li.push(Math.floor(Math.random() * 23 + 1).toString());
+    } else if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0)) {
         li.push('0');
     } else if (h === 0 || h === 1) {
         li.push('*');
@@ -42,7 +44,9 @@ const simpleCron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
     }
 
     if (i === 0 && h === 0 && d === 0 && r && (m > 0)) {
-        li.push(Math.floor(Math.random() * 28 + 1).toString());
+        li.push(Math.floor(Math.random() * 27 + 2).toString());
+    } else if (d === 0 && m > 0) {
+        li.push('1');
     } else if (d === 0 || d === 1) {
         li.push('*');
     } else {
@@ -63,56 +67,144 @@ const simpleCron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
     return li.join(' ');
 };
 
+// * * * * *
+const parse = (str) => {
+    let li = str.split(' ');
+    const reA = /^(\d+)$/;
+    const reB = /^\*\/(\d)$/;
 
-const test = () => {
+    if (li[4] === '*') {
+        li[4] = 0;
+    } else if (li[4].match(reA)) {
+        let w = parseInt(li[4].match(reA)[1]);
+        if (w < 1 || w > 7) {
+            li[4] = 0;
+        } else {
+            li[4] = w;
+        }
+    } else {
+        li[4] = 0;
+    }
 
-// 默认
-    console.log('默认', false, simpleCron(0, 0, 0, 0, 0, false));
-    console.log('默认', true, simpleCron(0, 0, 0, 0, 0, true));
+    if (li[3] === '*' && (li[2] !== '*' && !li[2].match(reB))) {
+        li[3] = 1;
+    } else if (li[3].match(reB)) {
+        let m = parseInt(li[3].match(reB)[1]);
+        if (m < 1 || m > 12) {
+            li[3] = 0;
+        } else {
+            li[3] = m;
+        }
+    } else {
+        li[3] = 0;
+    }
 
-// 每1分钟
-    console.log('每1分钟', false, simpleCron(1, 0, 0, 0, 0, false));
-    console.log('每1分钟', true, simpleCron(1, 0, 0, 0, 0, true));
+    if (li[2] === '*' && (li[1] !== '*' && !li[1].match(reB))) {
+        li[2] = 1;
+    } else if (li[2].match(reB)) {
+        let m = parseInt(li[2].match(reB)[1]);
+        if (m < 1 || m > 30) {
+            li[2] = 0;
+        } else {
+            li[2] = m;
+        }
+    } else {
+        li[2] = 0;
+    }
 
-// 每2分钟
-    console.log('每2分钟', false, simpleCron(2, 0, 0, 0, 0, false));
-    console.log('每2分钟', true, simpleCron(2, 0, 0, 0, 0, true));
+    if (li[1] === '*' && (li[0] !== '*' && !li[0].match(reB))) {
+        li[1] = 1;
+    } else if (li[1].match(reA)) {
+        let h = parseInt(li[1].match(reA)[1]);
+        if (h < 0 || h > 23) {
+            li[1] = 0;
+        } else {
+            li[1] = h;
+        }
+    } else if (li[1].match(reB)) {
+        let h = parseInt(li[1].match(reB)[1]);
+        if (h < 0 || h > 23) {
+            li[1] = 0;
+        } else {
+            li[1] = h;
+        }
+    } else {
+        li[1] = 0;
+    }
 
-// 每1小时
-    console.log('每1小时', false, simpleCron(0, 1, 0, 0, 0, false));
-    console.log('每1小时', true, simpleCron(0, 1, 0, 0, 0, true));
+    if (li[0] === '*') {
+        li[0] = 1;
+    } else if (li[0].match(reA)) {
+        let i = parseInt(li[0].match(reA)[1]);
+        if (i < 0 || i > 59) {
+            li[0] = 0;
+        } else {
+            li[0] = i;
+        }
+    } else if (li[0].match(reB)) {
+        let i = parseInt(li[0].match(reB)[1]);
+        if (i < 0 || i > 59) {
+            li[0] = 0;
+        } else {
+            li[0] = i;
+        }
+    } else {
+        li[0] = 0;
+    }
 
-// 每2小时
-    console.log('每2小时', false, simpleCron(0, 2, 0, 0, 0, false));
-    console.log('每2小时', true, simpleCron(0, 2, 0, 0, 0, true));
+    if (li[4] > 0) {
+        if (li[0] > 0) {
+            li[0] = 0;
+            li[1] = 0;
+            li[2] = 0;
+            li[3] = 0;
+            li.push(true);
+        } else {
+            li.push(false);
+        }
+        return li;
+    }
 
-// 每1天
-    console.log('每1天', false, simpleCron(0, 0, 1, 0, 0, false));
-    console.log('每1天', true, simpleCron(0, 0, 1, 0, 0, true));
+    if (li[3] > 0) {
+        if (li[0] > 0) {
+            li[0] = 0;
+            li[1] = 0;
+            li[2] = 0;
+            li.push(true);
+        } else {
+            li.push(false);
+        }
+        return li;
+    }
 
-// 每2天
-    console.log('每2天', false, simpleCron(0, 0, 2, 0, 0, false));
-    console.log('每2天', true, simpleCron(0, 0, 2, 0, 0, true));
+    if (li[2] > 0) {
+        if (li[0] > 0) {
+            li[0] = 0;
+            li[1] = 0;
+            li.push(true);
+        } else {
+            li.push(false);
+        }
+        return li;
+    }
 
-// 1月
-    console.log('每1月', false, simpleCron(0, 0, 0, 1, 0, false));
-    console.log('每1月', true, simpleCron(0, 0, 0, 1, 0, true));
+    if (li[1] > 0) {
+        if (li[0] > 0) {
+            li[0] = 0;
+            li.push(true);
+        } else {
+            li.push(false);
+        }
+        return li;
+    }
 
-// 2月
-    console.log('每2月', false, simpleCron(0, 0, 0, 2, 0, false));
-    console.log('每2月', true, simpleCron(0, 0, 0, 2, 0, true));
+    if (li[0] > 0) {
+        li.push(false);
+        return li;
+    }
 
-// 周日
-    console.log('周日', false, simpleCron(0, 0, 0, 0, 1, false));
-    console.log('周日', true, simpleCron(0, 0, 0, 0, 1, true));
-
-// 周一
-    console.log('周一', false, simpleCron(0, 0, 0, 0, 2, false));
-    console.log('周一', true, simpleCron(0, 0, 0, 0, 2, true));
+    li.push(false);
+    return li;
 };
 
-
-module.exports = {
-    'simpleCron': simpleCron,
-    'test': test,
-};
+export {cron, parse};
