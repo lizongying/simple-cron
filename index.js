@@ -3,8 +3,27 @@
 // d 每多少天
 // m 每多少月
 // w 周几 1 星期日
-// r 是否随机 true 随机
-const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
+// rand 是否随机 true 随机
+// return string || bool
+const cron = (type, value, rand = false) => {
+    let i = 0, h = 0, d = 0, m = 0, w = 0;
+    switch (type) {
+        case 'minute':
+            i = value;
+            break;
+        case 'hour':
+            h = value;
+            break;
+        case 'day':
+            d = value;
+            break;
+        case 'month':
+            m = value;
+            break;
+        case 'week':
+            w = value;
+            break;
+    }
     if (i < 0 || i > 60) {
         return false;
     }
@@ -23,7 +42,7 @@ const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
 
     let li = [];
 
-    if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0) && r) {
+    if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0) && rand) {
         li.push(Math.floor(Math.random() * 59 + 1).toString());
     } else if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0)) {
         li.push('0');
@@ -33,7 +52,7 @@ const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
         li.push('*/' + i.toString());
     }
 
-    if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0) && r) {
+    if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0) && rand) {
         li.push(Math.floor(Math.random() * 23 + 1).toString());
     } else if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0)) {
         li.push('0');
@@ -43,7 +62,7 @@ const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
         li.push('*/' + h.toString());
     }
 
-    if (i === 0 && h === 0 && d === 0 && r && (m > 0)) {
+    if (i === 0 && h === 0 && d === 0 && (m > 0) && rand) {
         li.push(Math.floor(Math.random() * 27 + 2).toString());
     } else if (d === 0 && m > 0) {
         li.push('1');
@@ -68,143 +87,110 @@ const cron = (i = 0, h = 0, d = 0, m = 0, w = 0, r = false) => {
 };
 
 // * * * * *
+// return object || bool
 const parse = (str) => {
-    let li = str.split(' ');
+    let li = str.trim().split(' ');
     const reA = /^(\d+)$/;
-    const reB = /^\*\/(\d)$/;
+    const reB = /^\*\/(\d+)$/;
+    const reC = /^(\*\/\d+|\d+|\*)$/;
+    li = li.filter(i => {
+        return i.match(reC);
+    });
+    if (li.length !== 5) {
+        return false;
+    }
 
+    let w = 0;
     if (li[4] === '*') {
-        li[4] = 0;
+        w = 0;
     } else if (li[4].match(reA)) {
-        let w = parseInt(li[4].match(reA)[1]);
+        w = parseInt(li[4].match(reA)[1]);
         if (w < 1 || w > 7) {
-            li[4] = 0;
-        } else {
-            li[4] = w;
+            w = 0;
         }
-    } else {
-        li[4] = 0;
     }
 
+    let m = 0;
     if (li[3] === '*' && (li[2] !== '*' && !li[2].match(reB))) {
-        li[3] = 1;
+        m = 1;
     } else if (li[3].match(reB)) {
-        let m = parseInt(li[3].match(reB)[1]);
+        m = parseInt(li[3].match(reB)[1]);
         if (m < 1 || m > 12) {
-            li[3] = 0;
-        } else {
-            li[3] = m;
+            m = 0;
         }
-    } else {
-        li[3] = 0;
     }
 
+    let d = 0;
     if (li[2] === '*' && (li[1] !== '*' && !li[1].match(reB))) {
-        li[2] = 1;
+        d = 1;
     } else if (li[2].match(reB)) {
-        let m = parseInt(li[2].match(reB)[1]);
-        if (m < 1 || m > 30) {
-            li[2] = 0;
-        } else {
-            li[2] = m;
+        d = parseInt(li[2].match(reB)[1]);
+        if (d < 1 || d > 30) {
+            d = 0;
         }
-    } else {
-        li[2] = 0;
     }
 
+    let h = 0;
     if (li[1] === '*' && (li[0] !== '*' && !li[0].match(reB))) {
-        li[1] = 1;
+        h = 1;
     } else if (li[1].match(reA)) {
-        let h = parseInt(li[1].match(reA)[1]);
+        h = parseInt(li[1].match(reA)[1]);
         if (h < 0 || h > 23) {
-            li[1] = 0;
-        } else {
-            li[1] = h;
+            h = 0;
         }
     } else if (li[1].match(reB)) {
-        let h = parseInt(li[1].match(reB)[1]);
+        h = parseInt(li[1].match(reB)[1]);
         if (h < 0 || h > 23) {
-            li[1] = 0;
-        } else {
-            li[1] = h;
+            h = 0;
         }
-    } else {
-        li[1] = 0;
     }
 
+    let i = 0;
     if (li[0] === '*') {
-        li[0] = 1;
+        i = 1;
     } else if (li[0].match(reA)) {
-        let i = parseInt(li[0].match(reA)[1]);
+        i = parseInt(li[0].match(reA)[1]);
         if (i < 0 || i > 59) {
-            li[0] = 0;
-        } else {
-            li[0] = i;
+            i = 0;
         }
     } else if (li[0].match(reB)) {
-        let i = parseInt(li[0].match(reB)[1]);
+        i = parseInt(li[0].match(reB)[1]);
         if (i < 0 || i > 59) {
-            li[0] = 0;
-        } else {
-            li[0] = i;
+            i = 0;
         }
-    } else {
-        li[0] = 0;
     }
 
-    if (li[4] > 0) {
-        if (li[0] > 0) {
-            li[0] = 0;
-            li[1] = 0;
-            li[2] = 0;
-            li[3] = 0;
-            li.push(true);
-        } else {
-            li.push(false);
-        }
-        return li;
+    let type = '';
+    let value = '';
+    if (i > 0) {
+        type = 'minute';
+        value = i;
     }
-
-    if (li[3] > 0) {
-        if (li[0] > 0) {
-            li[0] = 0;
-            li[1] = 0;
-            li[2] = 0;
-            li.push(true);
-        } else {
-            li.push(false);
-        }
-        return li;
+    if (h > 0) {
+        type = 'hour';
+        value = h;
     }
-
-    if (li[2] > 0) {
-        if (li[0] > 0) {
-            li[0] = 0;
-            li[1] = 0;
-            li.push(true);
-        } else {
-            li.push(false);
-        }
-        return li;
+    if (d > 0) {
+        type = 'day';
+        value = d;
     }
-
-    if (li[1] > 0) {
-        if (li[0] > 0) {
-            li[0] = 0;
-            li.push(true);
-        } else {
-            li.push(false);
-        }
-        return li;
+    if (m > 0) {
+        type = 'month';
+        value = m;
     }
-
-    if (li[0] > 0) {
-        li.push(false);
-        return li;
+    if (w > 0) {
+        type = 'week';
+        value = w;
     }
-
-    li.push(false);
-    return li;
+    let rand = i > 0;
+    if (type === '') {
+        return false;
+    }
+    return {
+        'type': type,
+        'value': value,
+        'rand': rand
+    };
 };
 
 export {cron, parse};

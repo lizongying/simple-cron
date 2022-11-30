@@ -7,64 +7,69 @@
 <body>
 每
 <select id="select">
-    <option value="1h">小时</option>
-    <option value="3h">三小时</option>
-    <option value="6h">六小时</option>
-    <option value="12h">十二小时</option>
-    <option value="1d">天</option>
-    <option value="2d">两天</option>
-    <option value="3d" selected>三天</option>
-    <option value="4d">四天</option>
-    <option value="5d">五天</option>
-    <option value="6d">六天</option>
-    <option value="7d">七天</option>
-    <option value="15d">十五天</option>
-    <option value="1m">月</option>
-    <option value="2m">两个月</option>
+    <option value="hour1">小时</option>
+    <option value="hour3">三小时</option>
+    <option value="hour6">六小时</option>
+    <option value="hour12">十二小时</option>
+    <option value="day1">天</option>
+    <option value="day2">两天</option>
+    <option value="day3" selected>三天</option>
+    <option value="day4">四天</option>
+    <option value="day5">五天</option>
+    <option value="day6">六天</option>
+    <option value="day7">七天</option>
+    <option value="day15">十五天</option>
+    <option value="month1">月</option>
+    <option value="month2">两个月</option>
 </select>执行一次
+<input type="checkbox" value="true" id="random">random
 <br>
 <label for="plain"></label><input type="text" id="plain">
 </body>
 <script type="module">
     import {cron, parse} from "./index.js"
 
-    let select = document.querySelector('#select')
-    let plain = document.querySelector('#plain')
+    const select = document.querySelector('#select')
+    const plain = document.querySelector('#plain')
+    const random = document.querySelector('#random')
     const selectChange = () => {
-        let r = select.value.match(/(\d+)(\w)/)
+        const r = select.value.match(/([a-z]+)(\d+)/)
         if (r === null) {
             return
         }
-        let value = ''
-        if (r[2] === 'h') {
-            value = cron(...[0, parseInt(r[1]), 0, 0, 0])
-        } else if (r[2] === 'd') {
-            value = cron(...[0, 0, parseInt(r[1]), 0, 0])
-        } else if (r[2] === 'm') {
-            value = cron(...[0, 0, 0, parseInt(r[1]), 0])
-        } else {
-            return
+        const rand = random.checked
+        let value = cron(r[1], parseInt(r[2]), rand)
+        if (value) {
+            plain.value = value
         }
-        plain.value = value
     }
     const plainChange = () => {
-        let p = parse(plain.value.trim())
-        let v = ''
-        if (p[1] > 0) {
-            v = p[1] + 'h'
+        const p = parse(plain.value.trim())
+        if (!p) {
+            console.log('Invalid format')
+            return
         }
-        if (p[2] > 0) {
-            v = p[2] + 'd'
+        console.log(p)
+        if (p.type === 'week') {
+            p.type = 'day'
+            p.value = '7'
         }
-        if (p[3] > 0) {
-            v = p[3] + 'm'
-        }
-        let q = select.querySelector('option[value="' + v + '"]')
+        let v = p.type + p.value
+
+        const q = select.querySelector('option[value="' + v + '"]')
         if (q != null) {
             q.setAttribute('selected', 'selected')
         }
+        if (p.rand) {
+            random.setAttribute('checked', 'checked')
+        } else {
+            random.removeAttribute('checked')
+        }
     }
     select.onchange = () => {
+        selectChange()
+    };
+    random.onchange = () => {
         selectChange()
     };
     plain.onchange = () => {
