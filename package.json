@@ -1,15 +1,23 @@
 {
   "name": "simple-cron-generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "简单定时任务语句生成和解析",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "node test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lizongying/simple-cron-generator.git"
+  },
   "author": "Li ZongYing",
   "license": "ISC",
   "devDependencies": {
     "cron-parser": "^4.7.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/lizongying/simple-cron-generator/issues"
+  },
+  "homepage": "https://github.com/lizongying/simple-cron-generator#readme"
 }
