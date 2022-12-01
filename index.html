@@ -38,7 +38,7 @@
             return
         }
         const rand = random.checked
-        let value = cron(r[1], parseInt(r[2]), rand)
+        const value = cron(r[1], parseInt(r[2]), rand)
         if (value) {
             plain.value = value
         }
@@ -49,13 +49,11 @@
             console.log('Invalid format')
             return
         }
-        console.log(p)
         if (p.type === 'week') {
             p.type = 'day'
             p.value = '7'
         }
-        let v = p.type + p.value
-
+        const v = p.type + p.value
         const q = select.querySelector('option[value="' + v + '"]')
         if (q != null) {
             q.setAttribute('selected', 'selected')

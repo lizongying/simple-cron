@@ -1,8 +1,5 @@
 import {cron, parse} from './index.js';
 
-import parser from 'cron-parser';
-
-const {parseExpression} = parser;
 
 const testCron = () => {
 
@@ -100,15 +97,3 @@ const testParse = () => {
 
 testCron();
 testParse();
-
-try {
-    const interval = parseExpression(cron(0, 0, 2, 0, 0, false));
-
-    console.log('Date: ', interval.next().toString()); // Fri Nov 25 2022 00:00:00 GMT+0800 (Hong Kong Standard Time)
-    console.log('Date: ', interval.next().toString()); // Sun Nov 27 2022 00:00:00 GMT+0800 (Hong Kong Standard Time)
-
-    console.log('Date: ', interval.prev().toString()); // Fri Nov 25 2022 00:00:00 GMT+0800 (Hong Kong Standard Time)
-    console.log('Date: ', interval.prev().toString()); // Wed Nov 23 2022 00:00:00 GMT+0800 (Hong Kong Standard Time)
-} catch (err) {
-    console.log('Error: ' + err.message);
-}

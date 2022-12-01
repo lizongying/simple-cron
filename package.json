@@ -1,7 +1,7 @@
 {
   "name": "simple-cron-generator",
-  "version": "1.0.2",
-  "description": "简单定时任务语句生成和解析",
+  "version": "1.0.3",
+  "description": "简单定时任务语句生成和解析，支持随机",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,10 +12,7 @@
     "url": "git+https://github.com/lizongying/simple-cron-generator.git"
   },
   "author": "Li ZongYing",
-  "license": "ISC",
-  "devDependencies": {
-    "cron-parser": "^4.7.0"
-  },
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/lizongying/simple-cron-generator/issues"
   },
