@@ -4,8 +4,9 @@
 // m 每多少月
 // w 周几 1 星期日
 // rand 是否随机 true 随机
+// deep 是否深随机 true 深随机
 // return string || bool
-const cron = (type, value, rand = false) => {
+const cron = (type, value, rand = false, deep = false) => {
     let i = 0, h = 0, d = 0, m = 0, w = 0;
     switch (type) {
         case 'minute':
@@ -49,7 +50,11 @@ const cron = (type, value, rand = false) => {
     } else if (i === 0 || i === 1) {
         li.push('*');
     } else {
-        li.push('*/' + i.toString());
+        if (rand && deep) {
+            li.push(deepRandom('minute', i));
+        } else {
+            li.push('*/' + i.toString());
+        }
     }
 
     if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0) && rand) {
@@ -59,7 +64,11 @@ const cron = (type, value, rand = false) => {
     } else if (h === 0 || h === 1) {
         li.push('*');
     } else {
-        li.push('*/' + h.toString());
+        if (rand && deep) {
+            li.push(deepRandom('hour', h));
+        } else {
+            li.push('*/' + h.toString());
+        }
     }
 
     if (i === 0 && h === 0 && d === 0 && (m > 0) && rand) {
@@ -69,13 +78,21 @@ const cron = (type, value, rand = false) => {
     } else if (d === 0 || d === 1) {
         li.push('*');
     } else {
-        li.push('*/' + d.toString());
+        if (rand && deep) {
+            li.push(deepRandom('day', d));
+        } else {
+            li.push('*/' + d.toString());
+        }
     }
 
     if (m === 0 || m === 1) {
         li.push('*');
     } else {
-        li.push('*/' + m.toString());
+        if (rand && deep) {
+            li.push(deepRandom('month', m));
+        } else {
+            li.push('*/' + m.toString());
+        }
     }
 
     if (w === 0) {
@@ -191,6 +208,46 @@ const parse = (str) => {
         'value': value,
         'rand': rand
     };
+};
+
+const deepRandom = (t, v) => {
+    let m = 0;
+    let f = [];
+    switch (t) {
+        case 'minute':
+            m = 59;
+            // f.push(0);
+            break;
+        case 'hour':
+            m = 23;
+            // f.push(0);
+            break;
+        case 'day':
+            m = 28;
+            f.push(0);
+            // f.push(1);
+            break;
+        case 'month':
+            m = 12;
+            f.push(0);
+            // f.push(1);
+            break;
+    }
+    let i = 0;
+    let li = [];
+    let r = Math.floor(Math.random() * v);
+    for (; i < m; i += v) {
+        let n = i + r;
+        if (n > m) {
+            continue;
+        }
+        if (f.indexOf(n) > -1) {
+            continue;
+        }
+        li.push(n + '');
+    }
+
+    return li.join(',');
 };
 
 export {cron, parse};

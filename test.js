@@ -6,38 +6,47 @@ const testCron = () => {
     // 默认
     console.log('默认', false, cron('', 0, false));
     console.log('默认', true, cron('', 0, true));
+    console.log('默认', true, cron('', 0, true, true));
 
     // 每1分钟
     console.log('每分钟', false, cron('minute', 1, false));
     console.log('每分钟', true, cron('minute', 1, true));
+    console.log('每分钟', true, cron('minute', 1, true, true));
 
     // 每2分钟
     console.log('每2分钟', false, cron('minute', 2, false));
     console.log('每2分钟', true, cron('minute', 2, true));
+    console.log('每2分钟', true, cron('minute', 2, true, true));
 
     // 每小时
     console.log('每小时', false, cron('hour', 1, false));
     console.log('每小时', true, cron('hour', 1, true));
+    console.log('每小时', true, cron('hour', 1, true, true));
 
     // 每2小时
     console.log('每2小时', false, cron('hour', 2, false));
     console.log('每2小时', true, cron('hour', 2, true));
+    console.log('每2小时', true, cron('hour', 2, true, true));
 
     // 每天
     console.log('每天', false, cron('day', 1, false));
     console.log('每天', true, cron('day', 1, true));
+    console.log('每天', true, cron('day', 1, true, true));
 
     // 每2天
     console.log('每2天', false, cron('day', 2, false));
     console.log('每2天', true, cron('day', 2, true));
+    console.log('每2天', true, cron('day', 2, true, true));
 
     // 每个月
     console.log('每个月', false, cron('month', 1, false));
     console.log('每个月', true, cron('month', 1, true));
+    console.log('每个月', true, cron('month', 1, true, true));
 
     // 每2个月
     console.log('每2个月', false, cron('month', 2, false));
     console.log('每2个月', true, cron('month', 2, true));
+    console.log('每2个月', true, cron('month', 2, true, true));
 
     // 周日
     console.log('周日', false, cron('week', 1, false));
