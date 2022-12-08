@@ -25,13 +25,13 @@ const cron = (type, value, rand = false, deep = false) => {
             w = value;
             break;
     }
-    if (i < 0 || i > 60) {
+    if (i < 0 || i > 59) {
         return false;
     }
-    if (h < 0 || h > 24) {
+    if (h < 0 || h > 23) {
         return false;
     }
-    if (d < 0 || d > 30) {
+    if (d < 0 || d > 28) {
         return false;
     }
     if (m < 0 || m > 12) {
@@ -109,9 +109,11 @@ const parse = (str) => {
     let li = str.trim().split(' ');
     const reA = /^(\d+)$/;
     const reB = /^\*\/(\d+)$/;
-    const reC = /^(\*\/\d+|\d+|\*)$/;
+    const reC = /^([\d,]+)$/;
+    const reD = /^(\*\/\d+|\d+|\*|[\d,]+)$/;
+
     li = li.filter(i => {
-        return i.match(reC);
+        return i.match(reD);
     });
     if (li.length !== 5) {
         return false;
@@ -142,8 +144,40 @@ const parse = (str) => {
         d = 1;
     } else if (li[2].match(reB)) {
         d = parseInt(li[2].match(reB)[1]);
-        if (d < 1 || d > 30) {
+        if (d < 1 || d > 28) {
             d = 0;
+        }
+    } else if (li[2].match(reC)) {
+        const z = li[2].match(reC)[1].split(',');
+        z.forEach((v, k) => {
+            if (k === 0) {
+                return;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return;
+            }
+            if (d === 0) {
+                d = n;
+            }
+            if (d !== n) {
+                d = -1;
+            }
+        });
+        if (parseInt(z[0]) > d - 1) {
+            d = 0;
+        }
+        if (parseInt(z[z.length - 1]) > 28) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) + d < 29) {
+            d = 0;
+        }
+        if (d < 1 || d > 28) {
+            d = 0;
+        }
+        if (d > 0) {
+            m = 0;
         }
     }
 
@@ -160,6 +194,38 @@ const parse = (str) => {
         if (h < 0 || h > 23) {
             h = 0;
         }
+    } else if (li[1].match(reC)) {
+        const z = li[1].match(reC)[1].split(',');
+        z.forEach((v, k) => {
+            if (k === 0) {
+                return;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return;
+            }
+            if (h === 0) {
+                h = n;
+            }
+            if (h !== n) {
+                h = -1;
+            }
+        });
+        if (parseInt(z[0]) > h - 1) {
+            h = 0;
+        }
+        if (parseInt(z[z.length - 1]) > 23) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) + h < 24) {
+            h = 0;
+        }
+        if (h < 0 || h > 23) {
+            h = 0;
+        }
+        if (h > 0) {
+            d = 0;
+        }
     }
 
     let i = 0;
@@ -174,6 +240,38 @@ const parse = (str) => {
         i = parseInt(li[0].match(reB)[1]);
         if (i < 0 || i > 59) {
             i = 0;
+        }
+    } else if (li[0].match(reC)) {
+        const z = li[0].match(reC)[1].split(',');
+        z.forEach((v, k) => {
+            if (k === 0) {
+                return;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return;
+            }
+            if (i === 0) {
+                i = n;
+            }
+            if (i !== n) {
+                i = -1;
+            }
+        });
+        if (parseInt(z[0]) > i - 1) {
+            i = 0;
+        }
+        if (parseInt(z[z.length - 1]) > 59) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) + i < 60) {
+            i = 0;
+        }
+        if (i < 0 || i > 59) {
+            i = 0;
+        }
+        if (i > 0) {
+            h = 0;
         }
     }
 

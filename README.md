@@ -8,6 +8,8 @@
 
 ## Usage
 
+* 30 * * * * 不会解析为每30分钟
+
 ```js
 
 // 每1分钟
@@ -58,6 +60,8 @@ console.log('每分钟', true, '* * * * *', parse('* * * * *'));
 console.log('每2分钟', false, '*/2 * * * *', parse('*/2 * * * *'));
 console.log('每2分钟', true, '*/2 * * * *', parse('*/2 * * * *'));
 
+console.log('每20分钟', true, '19,39,59 * * * *', parse('19,39,59 * * * *'));
+
 // 每小时
 console.log('每小时', false, '0 * * * *', parse('0 * * * *'));
 console.log('每小时', true, '1 * * * *', parse('1 * * * *'));
@@ -66,6 +70,8 @@ console.log('每小时', true, '1 * * * *', parse('1 * * * *'));
 console.log('每2小时', false, '0 */2 * * *', parse('0 */2 * * *'));
 console.log('每2小时', true, '1 */2 * * *', parse('1 */2 * * *'));
 
+console.log('每10小时', true, '1 9,19 * * *', parse('1 9,19 * * *'));
+
 // 每天
 console.log('每天', false, '0 0 * * *', parse('0 0 * * *'));
 console.log('每天', true, '1 2 * * *', parse('1 2 * * *'));
@@ -73,6 +79,7 @@ console.log('每天', true, '1 2 * * *', parse('1 2 * * *'));
 // 每2天
 console.log('每2天', false, '0 0 */2 * *', parse('0 0 */2 * *'));
 console.log('每2天', true, '1 2 */2 * *', parse('1 2 */2 * *'));
+console.log('每10天', true, '1 2 9,19 * *', parse('1 2 9,19 * *'));
 
 // 每个月
 console.log('每个月', false, '0 0 1 * *', parse('0 0 1 * *'));
