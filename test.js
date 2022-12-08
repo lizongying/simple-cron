@@ -3,11 +3,6 @@ import {cron, parse} from './index.js';
 
 const testCron = () => {
 
-    // 默认
-    console.log('默认', false, cron('', 0, false));
-    console.log('默认', true, cron('', 0, true));
-    console.log('默认', true, cron('', 0, true, true));
-
     // 每1分钟
     console.log('每分钟', false, cron('minute', 1, false));
     console.log('每分钟', true, cron('minute', 1, true));
@@ -110,8 +105,9 @@ const testParse = () => {
 };
 
 const test = () => {
+    console.log('周一', true, '1 2 * * 2', parse('8 7,17 * * *'));
 };
 
 testCron();
 testParse();
-test();
+// test();

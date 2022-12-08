@@ -7,100 +7,98 @@
 // deep 是否深随机 true 深随机
 // return string || bool
 const cron = (type, value, rand = false, deep = false) => {
-    let i = 0, h = 0, d = 0, m = 0, w = 0;
+    if (typeof (value) !== 'number') {
+        return false;
+    }
+    if (typeof (rand) !== 'boolean') {
+        return false;
+    }
+    if (typeof (deep) !== 'boolean') {
+        return false;
+    }
+    let i = '*', h = '*', d = '*', m = '*', w = '*';
     switch (type) {
         case 'minute':
-            i = value;
-            break;
+            if (value < 1 || value > 59) {
+                return false;
+            }
+            if (value === 1) {
+            } else if (deep) {
+                i = deepRandom('minute', value);
+            } else {
+                i = '*/' + value.toString();
+            }
+            return [i, h, d, m, w].join(' ');
         case 'hour':
-            h = value;
-            break;
+            if (value < 1 || value > 23) {
+                return false;
+            }
+            if (rand || deep) {
+                i = Math.floor(Math.random() * 60).toString();
+            } else {
+                i = '0';
+            }
+            if (value === 1) {
+            } else if (deep) {
+                h = deepRandom('hour', value);
+            } else {
+                h = '*/' + value.toString();
+            }
+            return [i, h, d, m, w].join(' ');
         case 'day':
-            d = value;
-            break;
+            if (value < 1 || value > 28) {
+                return false;
+            }
+            if (rand || deep) {
+                i = Math.floor(Math.random() * 60).toString();
+                h = Math.floor(Math.random() * 24).toString();
+            } else {
+                i = '0';
+                h = '0';
+            }
+            if (value === 1) {
+            } else if (deep) {
+                d = deepRandom('day', value);
+            } else {
+                d = '*/' + value.toString();
+            }
+            return [i, h, d, m, w].join(' ');
         case 'month':
-            m = value;
-            break;
+            if (value < 1 || value > 12) {
+                return false;
+            }
+            if (rand || deep) {
+                i = Math.floor(Math.random() * 60).toString();
+                h = Math.floor(Math.random() * 24).toString();
+                d = Math.floor(Math.random() * 28 + 1).toString();
+            } else {
+                i = '0';
+                h = '0';
+                d = '1';
+            }
+            if (value === 1) {
+            } else if (deep) {
+                m = deepRandom('month', value);
+            } else {
+                m = '*/' + value.toString();
+            }
+            return [i, h, d, m, w].join(' ');
         case 'week':
-            w = value;
-            break;
+            if (value < 1 || value > 7) {
+                return false;
+            }
+            if (rand || deep) {
+                i = Math.floor(Math.random() * 60).toString();
+                h = Math.floor(Math.random() * 24).toString();
+            } else {
+                i = '0';
+                h = '0';
+            }
+            w = value.toString();
+            return [i, h, d, m, w].join(' ');
+        default:
+            return false;
     }
-    if (i < 0 || i > 59) {
-        return false;
-    }
-    if (h < 0 || h > 23) {
-        return false;
-    }
-    if (d < 0 || d > 28) {
-        return false;
-    }
-    if (m < 0 || m > 12) {
-        return false;
-    }
-    if (w < 0 || w > 7) {
-        return false;
-    }
-
-    let li = [];
-
-    if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0) && rand) {
-        li.push(Math.floor(Math.random() * 59 + 1).toString());
-    } else if (i === 0 && (h > 0 || d > 0 || m > 0 || w > 0)) {
-        li.push('0');
-    } else if (i === 0 || i === 1) {
-        li.push('*');
-    } else {
-        if (rand && deep) {
-            li.push(deepRandom('minute', i));
-        } else {
-            li.push('*/' + i.toString());
-        }
-    }
-
-    if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0) && rand) {
-        li.push(Math.floor(Math.random() * 23 + 1).toString());
-    } else if (i === 0 && h === 0 && (d > 0 || m > 0 || w > 0)) {
-        li.push('0');
-    } else if (h === 0 || h === 1) {
-        li.push('*');
-    } else {
-        if (rand && deep) {
-            li.push(deepRandom('hour', h));
-        } else {
-            li.push('*/' + h.toString());
-        }
-    }
-
-    if (i === 0 && h === 0 && d === 0 && (m > 0) && rand) {
-        li.push(Math.floor(Math.random() * 27 + 2).toString());
-    } else if (d === 0 && m > 0) {
-        li.push('1');
-    } else if (d === 0 || d === 1) {
-        li.push('*');
-    } else {
-        if (rand && deep) {
-            li.push(deepRandom('day', d));
-        } else {
-            li.push('*/' + d.toString());
-        }
-    }
-
-    if (m === 0 || m === 1) {
-        li.push('*');
-    } else {
-        if (rand && deep) {
-            li.push(deepRandom('month', m));
-        } else {
-            li.push('*/' + m.toString());
-        }
-    }
-
-    if (w === 0) {
-        li.push('*');
-    } else {
-        li.push(w.toString());
-    }
-    return li.join(' ');
 };
 
 // * * * * *
@@ -121,11 +119,10 @@ const parse = (str) => {
 
     let w = 0;
     if (li[4] === '*') {
-        w = 0;
     } else if (li[4].match(reA)) {
         w = parseInt(li[4].match(reA)[1]);
         if (w < 1 || w > 7) {
-            w = 0;
+            return false;
         }
     }
 
@@ -135,7 +132,7 @@ const parse = (str) => {
     } else if (li[3].match(reB)) {
         m = parseInt(li[3].match(reB)[1]);
         if (m < 1 || m > 12) {
-            m = 0;
+            return false;
         }
     }
 
@@ -310,28 +307,24 @@ const parse = (str) => {
 
 const deepRandom = (t, v) => {
     let m = 0;
-    let f = [];
+    let i = 0;
     switch (t) {
         case 'minute':
             m = 59;
-            // f.push(0);
             break;
         case 'hour':
             m = 23;
-            // f.push(0);
             break;
         case 'day':
             m = 28;
-            f.push(0);
-            // f.push(1);
+            i = 1;
             break;
         case 'month':
             m = 12;
-            f.push(0);
-            // f.push(1);
+            i = 1;
             break;
     }
-    let i = 0;
+
     let li = [];
     let r = Math.floor(Math.random() * v);
     for (; i < m; i += v) {
@@ -339,10 +332,7 @@ const deepRandom = (t, v) => {
         if (n > m) {
             continue;
         }
-        if (f.indexOf(n) > -1) {
-            continue;
-        }
-        li.push(n + '');
+        li.push(n.toString());
     }
 
     return li.join(',');
