@@ -11,6 +11,10 @@
     "type": "git",
     "url": "git+https://github.com/lizongying/simple-cron-generator.git"
   },
+  "keywords": [
+    "cron",
+    "crontab"
+  ],
   "author": "Li ZongYing",
   "license": "MIT",
   "bugs": {
