@@ -6,99 +6,22 @@
 
 ## Feature
 
+* 根据几分钟/几小时... 生成crontab格式: 每2个月深随机 -> 15 20 6 1,3,5,7,9,11 *
+* 解析crontab，判断是几分钟/几小时...执行: 1 9,19 * * * -> 每10小时深随机
+* 深随机的意思是执行时间更加平均: */10 -> 9,19
+
 ## Usage
 
-* 天的范围1-28
-* 不支持时间间隔不一致的情况
-* 不支持 "-" 范围格式
-* 30 * * * * 不会解析为每30分钟
-
-```js
-
-// 每1分钟
-console.log('每分钟', false, cron('minute', 1, false));
-console.log('每分钟', true, cron('minute', 1, true));
-
-// 每2分钟
-console.log('每2分钟', false, cron('minute', 2, false));
-console.log('每2分钟', true, cron('minute', 2, true));
-
-// 每小时
-console.log('每小时', false, cron('hour', 1, false));
-console.log('每小时', true, cron('hour', 1, true));
-
-// 每2小时
-console.log('每2小时', false, cron('hour', 2, false));
-console.log('每2小时', true, cron('hour', 2, true));
-
-// 每天
-console.log('每天', false, cron('day', 1, false));
-console.log('每天', true, cron('day', 1, true));
-
-// 每2天
-console.log('每2天', false, cron('day', 2, false));
-console.log('每2天', true, cron('day', 2, true));
-
-// 每个月
-console.log('每个月', false, cron('month', 1, false));
-console.log('每个月', true, cron('month', 1, true));
-
-// 每2个月
-console.log('每2个月', false, cron('month', 2, false));
-console.log('每2个月', true, cron('month', 2, true));
-
-// 周日
-console.log('周日', false, cron('week', 1, false));
-console.log('周日', true, cron('week', 1, true));
-
-// 周一
-console.log('周一', false, cron('week', 2, false));
-console.log('周一', true, cron('week', 2, true));
-
-// 每分钟
-console.log('每分钟', false, '* * * * *', parse('* * * * *'));
-console.log('每分钟', true, '* * * * *', parse('* * * * *'));
-
-// 每2分钟
-console.log('每2分钟', false, '*/2 * * * *', parse('*/2 * * * *'));
-console.log('每2分钟', true, '*/2 * * * *', parse('*/2 * * * *'));
-
-console.log('每20分钟', true, '19,39,59 * * * *', parse('19,39,59 * * * *'));
-
-// 每小时
-console.log('每小时', false, '0 * * * *', parse('0 * * * *'));
-console.log('每小时', true, '1 * * * *', parse('1 * * * *'));
-
-// 每2小时
-console.log('每2小时', false, '0 */2 * * *', parse('0 */2 * * *'));
-console.log('每2小时', true, '1 */2 * * *', parse('1 */2 * * *'));
-
-console.log('每10小时', true, '1 9,19 * * *', parse('1 9,19 * * *'));
-
-// 每天
-console.log('每天', false, '0 0 * * *', parse('0 0 * * *'));
-console.log('每天', true, '1 2 * * *', parse('1 2 * * *'));
-
-// 每2天
-console.log('每2天', false, '0 0 */2 * *', parse('0 0 */2 * *'));
-console.log('每2天', true, '1 2 */2 * *', parse('1 2 */2 * *'));
-console.log('每10天', true, '1 2 9,19 * *', parse('1 2 9,19 * *'));
-
-// 每个月
-console.log('每个月', false, '0 0 1 * *', parse('0 0 1 * *'));
-console.log('每个月', true, '1 2 2 * *', parse('1 2 2 * *'));
-
-// 每2个月
-console.log('每2个月', false, '0 0 1 */2 *', parse('0 0 1 */2 *'));
-console.log('每2个月', true, '1 2 2 */2 *', parse('1 2 2 */2 *'));
-
-// 周日
-console.log('周日', false, '* * * * 1', parse('* * * * 1'));
-console.log('周日', true, '1 2 * * 1', parse('1 2 * * 1'));
-
-// 周一
-console.log('周一', false, '* * * * 2', parse('* * * * 2'));
-console.log('周一', true, '1 2 * * 2', parse('1 2 * * 2'));
+```shell
+npm run test
 ```
 
 * [example](./index.html)
+
+## Note
+
+* 当生产每月一次定时任务的时候，天的范围为1-28
+* 不支持解析时间间隔不一致的情况
+* 不支持解析"-"范围格式
+* 不支持解析星期","格式
+* 不建议周期超过上层周期的一半进行深随机。如50分钟执行一次， 深随机可能是40 * * * * ，就会每小时执行。

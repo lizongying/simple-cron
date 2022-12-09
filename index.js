@@ -46,7 +46,7 @@ const cron = (type, value, rand = false, deep = false) => {
             }
             return [i, h, d, m, w].join(' ');
         case 'day':
-            if (value < 1 || value > 28) {
+            if (value < 1 || value > 31) {
                 return false;
             }
             if (rand || deep) {
@@ -70,6 +70,8 @@ const cron = (type, value, rand = false, deep = false) => {
             if (rand || deep) {
                 i = Math.floor(Math.random() * 60).toString();
                 h = Math.floor(Math.random() * 24).toString();
+
+                // not contain 29-31
                 d = Math.floor(Math.random() * 28 + 1).toString();
             } else {
                 i = '0';
@@ -105,171 +107,264 @@ const cron = (type, value, rand = false, deep = false) => {
 // return object || bool
 const parse = (str) => {
     let li = str.trim().split(' ');
-    const reA = /^(\d+)$/;
-    const reB = /^\*\/(\d+)$/;
-    const reC = /^([\d,]+)$/;
-    const reD = /^(\*\/\d+|\d+|\*|[\d,]+)$/;
+    const reNum = /^(\d+)$/;
+    const reStar = /^\*\/(\d+)$/;
+    const reSeg = /^([\d,]+)$/;
+    const reAll = /^(\*\/\d+|\d+|\*|[\d,]+)$/;
 
     li = li.filter(i => {
-        return i.match(reD);
+        return i.match(reAll);
     });
     if (li.length !== 5) {
         return false;
     }
 
-    let w = 0;
-    if (li[4] === '*') {
-    } else if (li[4].match(reA)) {
-        w = parseInt(li[4].match(reA)[1]);
-        if (w < 1 || w > 7) {
-            return false;
-        }
-    }
-
-    let m = 0;
-    if (li[3] === '*' && (li[2] !== '*' && !li[2].match(reB))) {
-        m = 1;
-    } else if (li[3].match(reB)) {
-        m = parseInt(li[3].match(reB)[1]);
-        if (m < 1 || m > 12) {
-            return false;
-        }
-    }
-
-    let d = 0;
-    if (li[2] === '*' && (li[1] !== '*' && !li[1].match(reB))) {
-        d = 1;
-    } else if (li[2].match(reB)) {
-        d = parseInt(li[2].match(reB)[1]);
-        if (d < 1 || d > 28) {
-            d = 0;
-        }
-    } else if (li[2].match(reC)) {
-        const z = li[2].match(reC)[1].split(',');
-        z.forEach((v, k) => {
-            if (k === 0) {
-                return;
-            }
-            const n = parseInt(v) - parseInt(z[k - 1]);
-            if (n < 1) {
-                return;
-            }
-            if (d === 0) {
-                d = n;
-            }
-            if (d !== n) {
-                d = -1;
-            }
-        });
-        if (parseInt(z[0]) > d - 1) {
-            d = 0;
-        }
-        if (parseInt(z[z.length - 1]) > 28) {
-            return false;
-        }
-        if (parseInt(z[z.length - 1]) + d < 29) {
-            d = 0;
-        }
-        if (d < 1 || d > 28) {
-            d = 0;
-        }
-        if (d > 0) {
-            m = 0;
-        }
-    }
-
-    let h = 0;
-    if (li[1] === '*' && (li[0] !== '*' && !li[0].match(reB))) {
-        h = 1;
-    } else if (li[1].match(reA)) {
-        h = parseInt(li[1].match(reA)[1]);
-        if (h < 0 || h > 23) {
-            h = 0;
-        }
-    } else if (li[1].match(reB)) {
-        h = parseInt(li[1].match(reB)[1]);
-        if (h < 0 || h > 23) {
-            h = 0;
-        }
-    } else if (li[1].match(reC)) {
-        const z = li[1].match(reC)[1].split(',');
-        z.forEach((v, k) => {
-            if (k === 0) {
-                return;
-            }
-            const n = parseInt(v) - parseInt(z[k - 1]);
-            if (n < 1) {
-                return;
-            }
-            if (h === 0) {
-                h = n;
-            }
-            if (h !== n) {
-                h = -1;
-            }
-        });
-        if (parseInt(z[0]) > h - 1) {
-            h = 0;
-        }
-        if (parseInt(z[z.length - 1]) > 23) {
-            return false;
-        }
-        if (parseInt(z[z.length - 1]) + h < 24) {
-            h = 0;
-        }
-        if (h < 0 || h > 23) {
-            h = 0;
-        }
-        if (h > 0) {
-            d = 0;
-        }
-    }
+    let rand = false;
+    let deepRand = false;
 
     let i = 0;
     if (li[0] === '*') {
         i = 1;
-    } else if (li[0].match(reA)) {
-        i = parseInt(li[0].match(reA)[1]);
+    } else if (li[0].match(reNum)) {
+        i = parseInt(li[0].match(reNum)[1]);
         if (i < 0 || i > 59) {
-            i = 0;
+            return false;
         }
-    } else if (li[0].match(reB)) {
-        i = parseInt(li[0].match(reB)[1]);
-        if (i < 0 || i > 59) {
-            i = 0;
+        if (i > 0) {
+            rand = true;
         }
-    } else if (li[0].match(reC)) {
-        const z = li[0].match(reC)[1].split(',');
-        z.forEach((v, k) => {
+        i = 0;
+    } else if (li[0].match(reStar)) {
+        i = parseInt(li[0].match(reStar)[1]);
+        if (i < 1 || i > 59) {
+            return false;
+        }
+    } else if (li[0].match(reSeg)) {
+        const z = li[0].match(reSeg)[1].split(',');
+        z.every((v, k) => {
             if (k === 0) {
-                return;
+                return true;
             }
             const n = parseInt(v) - parseInt(z[k - 1]);
             if (n < 1) {
-                return;
+                return false;
             }
             if (i === 0) {
                 i = n;
+                return true;
             }
             if (i !== n) {
                 i = -1;
+                return false;
             }
         });
+        if (parseInt(z[0]) < 0) {
+            return false;
+        }
         if (parseInt(z[0]) > i - 1) {
-            i = 0;
+            return false;
         }
         if (parseInt(z[z.length - 1]) > 59) {
             return false;
         }
-        if (parseInt(z[z.length - 1]) + i < 60) {
-            i = 0;
+        if (parseInt(z[z.length - 1]) < 60 - i) {
+            return false;
         }
-        if (i < 0 || i > 59) {
-            i = 0;
+        if (i < 1 || i > 59) {
+            return false;
         }
-        if (i > 0) {
-            h = 0;
+        rand = true;
+        deepRand = true;
+    } else {
+        return false;
+    }
+
+    let h = 0;
+    if (li[1] === '*') {
+        if (li[0].match(reNum)) {
+            h = 1;
         }
+    } else if (li[1].match(reNum)) {
+        h = parseInt(li[1].match(reNum)[1]);
+        if (h < 0 || h > 23) {
+            return false;
+        }
+        if (h > 0) {
+            rand = true;
+        }
+        h = 0;
+    } else if (li[1].match(reStar)) {
+        h = parseInt(li[1].match(reStar)[1]);
+        if (h < 1 || h > 23) {
+            return false;
+        }
+    } else if (li[1].match(reSeg)) {
+        const z = li[1].match(reSeg)[1].split(',');
+        z.every((v, k) => {
+            if (k === 0) {
+                return true;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return false;
+            }
+            if (h === 0) {
+                h = n;
+                return true;
+            }
+            if (h !== n) {
+                h = -1;
+                return false;
+            }
+        });
+        if (parseInt(z[0]) < 0) {
+            return false;
+        }
+        if (parseInt(z[0]) > h - 1) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) > 23) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) < 24 - h) {
+            return false;
+        }
+        if (h < 0 || h > 23) {
+            return false;
+        }
+        rand = true;
+        deepRand = true;
+    } else {
+        return false;
+    }
+
+    let d = 0;
+    if (li[2] === '*') {
+        if (li[1].match(reNum)) {
+            d = 1;
+        }
+    } else if (li[2].match(reNum)) {
+        d = parseInt(li[2].match(reNum)[1]);
+        if (d < 1 || d > 31) {
+            return false;
+        }
+        if (d > 1) {
+            rand = true;
+        }
+        d = 0;
+    } else if (li[2].match(reStar)) {
+        d = parseInt(li[2].match(reStar)[1]);
+        if (d < 1 || d > 31) {
+            return false;
+        }
+    } else if (li[2].match(reSeg)) {
+        const z = li[2].match(reSeg)[1].split(',');
+        z.every((v, k) => {
+            if (k === 0) {
+                return true;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return false;
+            }
+            if (d === 0) {
+                d = n;
+                return true;
+            }
+            if (d !== n) {
+                d = -1;
+                return false;
+            }
+        });
+        if (parseInt(z[0]) < 1) {
+            return false;
+        }
+        if (parseInt(z[0]) > d - 1) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) > 31) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) < 32 - d) {
+            return false;
+        }
+        if (d < 1 || d > 31) {
+            return false;
+        }
+        rand = true;
+        deepRand = true;
+    } else {
+        return false;
+    }
+
+    let m = 0;
+    if (li[3] === '*') {
+        if (li[2].match(reNum)) {
+            m = 1;
+        }
+    } else if (li[3].match(reNum)) {
+        m = parseInt(li[3].match(reNum)[1]);
+        if (m < 1 || m > 12) {
+            return false;
+        }
+        if (m > 1) {
+            rand = true;
+        }
+        m = 0;
+    } else if (li[3].match(reStar)) {
+        m = parseInt(li[3].match(reStar)[1]);
+        if (m < 1 || m > 12) {
+            return false;
+        }
+    } else if (li[3].match(reSeg)) {
+        const z = li[3].match(reSeg)[1].split(',');
+        z.every((v, k) => {
+            if (k === 0) {
+                return true;
+            }
+            const n = parseInt(v) - parseInt(z[k - 1]);
+            if (n < 1) {
+                return false;
+            }
+            if (m === 0) {
+                m = n;
+                return true;
+            }
+            if (m !== n) {
+                m = -1;
+                return false;
+            }
+        });
+        if (parseInt(z[0]) < 1) {
+            return false;
+        }
+        if (parseInt(z[0]) > m - 1) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) > 12) {
+            return false;
+        }
+        if (parseInt(z[z.length - 1]) < 13 - m) {
+            return false;
+        }
+        if (m < 1 || m > 12) {
+            return false;
+        }
+        rand = true;
+        deepRand = true;
+    } else {
+        return false;
+    }
+
+    let w = 0;
+    if (li[4] === '*') {
+    } else if (li[4].match(reNum)) {
+        w = parseInt(li[4].match(reNum)[1]);
+        if (w < 1 || w > 7) {
+            return false;
+        }
+    } else {
+        return false;
     }
 
     let type = '';
@@ -294,14 +389,11 @@ const parse = (str) => {
         type = 'week';
         value = w;
     }
-    let rand = i > 0;
     if (type === '') {
         return false;
     }
     return {
-        'type': type,
-        'value': value,
-        'rand': rand
+        'type': type, 'value': value, 'rand': rand, 'deepRand': deepRand
     };
 };
 
@@ -316,7 +408,7 @@ const deepRandom = (t, v) => {
             m = 23;
             break;
         case 'day':
-            m = 28;
+            m = 31;
             i = 1;
             break;
         case 'month':
