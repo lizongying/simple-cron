@@ -422,7 +422,7 @@ const deepRandom = (t, v) => {
     let r = Math.floor(Math.random() * v);
     for (; i < m; i += v) {
         let n = i + r;
-        if (n > m) {
+        if (n >= m) {
             continue;
         }
         li.push(n.toString());
