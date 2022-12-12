@@ -279,7 +279,7 @@ const parse = (str) => {
         if (parseInt(z[0]) < 1) {
             return false;
         }
-        if (parseInt(z[0]) > d - 1) {
+        if (parseInt(z[0]) > d) {
             return false;
         }
         if (parseInt(z[z.length - 1]) > 31) {
@@ -339,7 +339,7 @@ const parse = (str) => {
         if (parseInt(z[0]) < 1) {
             return false;
         }
-        if (parseInt(z[0]) > m - 1) {
+        if (parseInt(z[0]) > m) {
             return false;
         }
         if (parseInt(z[z.length - 1]) > 12) {

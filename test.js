@@ -103,6 +103,7 @@ const testParse = () => {
 const testSome = () => {
     console.log('每58分钟', cron('minute', 58, false));
     console.log('每58分钟', cron('minute', 58, true, true));
+    console.log('每三天随机', '36 6 3,6,9,12,15,18,21,24,27,30 * *', parse('36 6 3,6,9,12,15,18,21,24,27,30 * *'));
 };
 
 testCron();
