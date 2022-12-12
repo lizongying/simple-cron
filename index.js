@@ -285,9 +285,10 @@ const parse = (str) => {
         if (parseInt(z[z.length - 1]) > 31) {
             return false;
         }
-        if (parseInt(z[z.length - 1]) < 32 - d) {
-            return false;
-        }
+        // 为了兼容之前的错误，暂时注释
+        // if (parseInt(z[z.length - 1]) < 32 - d) {
+        //     return false;
+        // }
         if (d < 1 || d > 31) {
             return false;
         }
@@ -402,17 +403,17 @@ const deepRandom = (t, v) => {
     let i = 0;
     switch (t) {
         case 'minute':
-            m = 59;
+            m = 60;
             break;
         case 'hour':
-            m = 23;
+            m = 24;
             break;
         case 'day':
-            m = 31;
+            m = 32;
             i = 1;
             break;
         case 'month':
-            m = 12;
+            m = 13;
             i = 1;
             break;
     }
